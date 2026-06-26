@@ -19,19 +19,39 @@ import json
 import sys
 from typing import Any
 
+import structlog
 from mcp.server.fastmcp import FastMCP
 
-from .client import EzyvetAPIError, EzyvetAuthError, EzyvetClient, EzyvetError
+from .client import EzyvetClient
+from .exceptions import (
+    EzyvetAPIError,
+    EzyvetAuthError,
+    EzyvetConnectionError,
+    EzyvetError,
+    EzyvetNotFoundError,
+    EzyvetRateLimitError,
+)
+
+log = structlog.get_logger(__name__)
 
 
 def _format_error(e: Exception) -> str:
     if isinstance(e, EzyvetAuthError):
         return (
             "Authentication failed against ezyVet. Check EZYVET_PARTNER_ID / "
-            f"EZYVET_CLIENT_ID / EZYVET_CLIENT_SECRET / EZYVET_SITE_UID / EZYVET_SCOPE. Details: {e}"
+            "EZYVET_CLIENT_ID / EZYVET_CLIENT_SECRET / EZYVET_SITE_UID / "
+            f"EZYVET_SCOPE. Details: {e}"
         )
+    if isinstance(e, EzyvetNotFoundError):
+        return f"Resource not found: {e}"
+    if isinstance(e, EzyvetRateLimitError):
+        wait = f" Retry in {e.retry_after}s." if e.retry_after else ""
+        return f"ezyVet rate limit hit.{wait} Slow down — limit is 60 req/min most endpoints."
+    if isinstance(e, EzyvetConnectionError):
+        return f"Network failure talking to ezyVet: {e}"
     if isinstance(e, EzyvetAPIError):
-        return f"ezyVet API error (HTTP {e.status_code}): {e}"
+        request_id = f" (request_id: {e.request_id})" if e.request_id else ""
+        return f"ezyVet API error (HTTP {e.http_status}){request_id}: {e}"
     if isinstance(e, EzyvetError):
         return f"ezyVet error: {e}"
     return f"Unexpected error: {e!r}"
@@ -307,7 +327,7 @@ def main() -> None:
     try:
         mcp.run()
     except EzyvetAuthError as e:
-        print(f"[ezyvet-mcp] {e}", file=sys.stderr)
+        log.error("server.auth_failed_on_start", error=str(e))
         sys.exit(1)
 
 
