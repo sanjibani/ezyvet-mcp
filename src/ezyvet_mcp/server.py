@@ -84,8 +84,8 @@ async def get_animal(animal_id: int) -> str:
     """Fetch a single animal (patient) by ezyVet ID."""
     try:
         return _json(await _client().get_animal(animal_id))
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 @mcp.tool()
@@ -103,8 +103,8 @@ async def find_animals(
             name=name, species_id=species_id, breed_id=breed_id,
             page=page, limit=limit,
         ))
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 @mcp.tool()
@@ -118,8 +118,8 @@ async def create_animal(animal_json: str) -> str:
         return _json(await _client().create_animal(data))
     except json.JSONDecodeError as e:
         return f"Invalid JSON in animal_json: {e}"
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 @mcp.tool()
@@ -133,8 +133,8 @@ async def update_animal(animal_id: int, updates_json: str) -> str:
         return _json(await _client().update_animal(animal_id, updates))
     except json.JSONDecodeError as e:
         return f"Invalid JSON in updates_json: {e}"
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 # ----- Contact tools --------------------------------------------------------
@@ -145,8 +145,8 @@ async def get_contact(contact_id: int) -> str:
     """Fetch a contact (the pet owner) by ID."""
     try:
         return _json(await _client().get_contact(contact_id))
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 @mcp.tool()
@@ -163,8 +163,8 @@ async def find_contacts(
             first_name=first_name, last_name=last_name, email=email,
             page=page, limit=limit,
         ))
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 @mcp.tool()
@@ -177,8 +177,8 @@ async def create_contact(contact_json: str) -> str:
         return _json(await _client().create_contact(data))
     except json.JSONDecodeError as e:
         return f"Invalid JSON in contact_json: {e}"
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 # ----- Appointment tools ---------------------------------------------------
@@ -200,8 +200,8 @@ async def find_appointments(
             animal_id=animal_id, start_date=start_date, end_date=end_date,
             appointment_type_id=appointment_type_id, page=page, limit=limit,
         ))
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 @mcp.tool()
@@ -214,8 +214,8 @@ async def create_appointment(appointment_json: str) -> str:
         return _json(await _client().create_appointment(data))
     except json.JSONDecodeError as e:
         return f"Invalid JSON in appointment_json: {e}"
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 # ----- Consult tools -------------------------------------------------------
@@ -235,8 +235,8 @@ async def find_consults(
             animal_id=animal_id, start_date=start_date, end_date=end_date,
             page=page, limit=limit,
         ))
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 @mcp.tool()
@@ -249,8 +249,8 @@ async def create_consult(consult_json: str) -> str:
         return _json(await _client().create_consult(data))
     except json.JSONDecodeError as e:
         return f"Invalid JSON in consult_json: {e}"
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 # ----- Invoice tools -------------------------------------------------------
@@ -270,8 +270,8 @@ async def find_invoices(
             contact_id=contact_id, start_date=start_date, end_date=end_date,
             page=page, limit=limit,
         ))
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 # ----- Reference data tools ------------------------------------------------
@@ -282,8 +282,8 @@ async def list_species() -> str:
     """List animal species (dog, cat, rabbit, etc.)."""
     try:
         return _json(await _client().list_species())
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 @mcp.tool()
@@ -291,8 +291,8 @@ async def list_breeds() -> str:
     """List animal breeds."""
     try:
         return _json(await _client().list_breeds())
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 @mcp.tool()
@@ -300,8 +300,8 @@ async def list_appointment_types() -> str:
     """List appointment type definitions (consult, vaccination, surgery, etc.)."""
     try:
         return _json(await _client().list_appointment_types())
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 @mcp.tool()
@@ -309,8 +309,8 @@ async def list_users() -> str:
     """List practice users (vets, nurses, receptionists)."""
     try:
         return _json(await _client().list_users())
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 @mcp.tool()
@@ -319,8 +319,8 @@ async def health_check() -> str:
     try:
         await _client().list_users()
         return _json({"status": "ok"})
-    except EzyvetError as e:
-        return _format_error(e)
+    except EzyvetError:
+        raise
 
 
 def main() -> None:
